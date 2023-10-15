@@ -18,8 +18,9 @@ namespace ShoppingAPI_2023_2.DAL
         }
 
         #region DbSets
-        public DbSet<Country> Countries { get; set; }
+        public DbSet<Country> Countries { get; set; } //Esta Línea me toma la clase Coutry y me la mappea en SQL SERVER para crear una tabla llamada  COUNTRIES
 
+        //Por cada nueva entidad que to creo, debo crearle su DbSet
         
         #endregion
     }
