@@ -4,50 +4,101 @@ using ShoppingAPI_2023_2.Domain.Interfaces;
 
 namespace ShoppingAPI_2023_2.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("api/[ApiController]")]//Esta es la primera parte de la URL de esta API: URL=api/countries
-
-    public class CountriesController : Controller
+    public class CountriesController : ControllerBase
     {
         private readonly ICountryService _countryService;
 
         public CountriesController(ICountryService countryService)
         {
             _countryService = countryService;
-
         }
-
-        //En un controlador los Métodos cambian de nombre , y realmente se llaman ACCIUONES (ACTIONS - si es una API , se denomina ENDPOINT
-        //Todo ENDPOINT retorna un ActionResult, significa que retorna el resultado de una acción
 
         [HttpGet, ActionName("Get")]
-        [Route("Get")] // Aqui concateno la URL ic¿nicial: URL = api/countries/Get
-
-
-
+        [Route("GetAll")]
         public async Task<ActionResult<IEnumerable<Country>>> GetCountriesAsync()
         {
+            var countries = await _countryService.GetCountriesAsync();
 
-            var countries = await _countryService.GetCountriesAsync();//Aquí estoy yendo a mi capa Domain  
-            //para traerme la lista de paises
+            if (countries == null || !countries.Any()) return NotFound();
 
-            if (countries == null || !countries.Any())//El metoso Any() significa si hay al menos un elemento.
-                                                      //El metodo !Any() significa si no hay  elementos
-            {
-                return NotFound();// NotFound() = 404 Http Status Code
-
-            }
-
-            return Ok(countries);//ok = 200 Http Status Code
-
-
-
+            return Ok(countries);
         }
 
+        [HttpPost, ActionName("Create")]
+        [Route("Create")]
+        public async Task<ActionResult> CreateCountryAsync(Country country)
+        {
+            try
+            {
+                var createdCountry = await _countryService.CreateCountryAsync(country);
+                return Ok(createdCountry);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("duplicate"))
+                    return Conflict(String.Format("{0} ya existe", country.Name));
 
+                return Conflict(ex.Message);
+            }
+        }
 
+        [HttpGet, ActionName("Get")]
+        [Route("GetById/{id}")] //URL: api/countries/get
+        public async Task<ActionResult<Country>> GetCountryByIdAsync(Guid id)
+        {
+            if (id == null) return BadRequest("Id es requerido!");
 
+            var country = await _countryService.GetCountryByIdAsync(id);
 
+            if (country == null) return NotFound(); // 404
 
+            return Ok(country); // 200
+        }
+
+        [HttpGet, ActionName("Get")]
+        [Route("GetByName/{name}")] //URL: api/countries/get
+        public async Task<ActionResult<Country>> GetCountryByNameAsync(string name)
+        {
+            if (name == null) return BadRequest("Nombre del país requerido!");
+
+            var country = await _countryService.GetCountryByNameAsync(name);
+
+            if (country == null) return NotFound(); // 404
+
+            return Ok(country); // 200
+        }
+
+        [HttpPut, ActionName("Edit")]
+        [Route("Edit")]
+        public async Task<ActionResult<Country>> EditCountryAsync(Country country)
+        {
+            try
+            {
+                var editedCountry = await _countryService.EditCountryAsync(country);
+                return Ok(editedCountry);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("duplicate"))
+                    return Conflict(String.Format("{0} ya existe", country.Name));
+
+                return Conflict(ex.Message);
+            }
+        }
+
+        [HttpDelete, ActionName("Delete")]
+        [Route("Delete")]
+        public async Task<ActionResult<Country>> DeleteCountryAsync(Guid id)
+        {
+            if (id == null) return BadRequest("Id es requerido!");
+
+            var deletedCountry = await _countryService.DeleteCountryAsync(id);
+
+            if (deletedCountry == null) return NotFound("País no encontrado!");
+
+            return Ok(deletedCountry);
+        }
     }
 }
