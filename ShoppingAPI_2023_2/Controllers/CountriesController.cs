@@ -20,6 +20,11 @@ namespace ShoppingAPI_2023_2.Controllers
         //En un controlador los Métodos cambian de nombre , y realmente se llaman ACCIUONES (ACTIONS - si es una API , se denomina ENDPOINT
         //Todo ENDPOINT retorna un ActionResult, significa que retorna el resultado de una acción
 
+        [HttpGet, ActionName("Get")]
+        [Route("Get")] // Aqui concateno la URL ic¿nicial: URL = api/countries/Get
+
+
+
         public async Task<ActionResult<IEnumerable<Country>>> GetCountriesAsync()
         {
 
